@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import serial
 from SystemState import SystemState
+from NavagationData import NavagationData
 import time
 import random
 
