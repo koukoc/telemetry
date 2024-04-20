@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import rospy
 from std_msgs.msg import Bool
 
@@ -29,7 +30,11 @@ class SystemState:
         rospy.Subscriber('SecondStageIgnition',Bool,self.__secondStageIgnitionCallback)
         rospy.Subscriber('SeparationState',Bool,self.__SeparationStateCallback)
         rospy.Subscriber('OutofRackState',Bool,self.__OutofRackStateCallback)
-        rospy.Publisher('FirstStageMainValveOpened', Bool, self.__FirstStageMainValveCallback)
-        rospy.Publisher('SecondStageMainValveOpened', Bool, self.__SecondStageMainValveCallback)
+        rospy.Subscriber('FirstStageMainValveOpened', Bool, self.__FirstStageMainValveCallback)
+        rospy.Subscriber('SecondStageMainValveOpened', Bool, self.__SecondStageMainValveCallback)
         rospy.Subscriber('Separate', Bool, self.__SeparateCommandCallback)
         
+if __name__ == '__main__':
+    rospy.init_node('testersys',anonymous=True)
+    state=SystemState()
+    rospy.spin()

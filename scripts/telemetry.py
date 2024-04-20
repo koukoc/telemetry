@@ -1,5 +1,5 @@
+#!/usr/bin/env python3
 import serial
-import rospy
 from SystemState import SystemState
 import time
 import random
@@ -8,7 +8,7 @@ def simulate_rocket_data(packet_count):
     header = "HDR"
     mission_time = random.randint(0, 4294967295)
     system_state = SystemState()
-    systemStateData = [system_state.FirstStageIgnition]
+    systemStateData = [system_state.FirstStageIgnition] # 自己改格式
     flight_mode = format(random.randint(0, 15), '04b')
     sensor_data = format(random.randint(0, 255), '08b')
     navigation_data = ",".join([str(random.random()) for _ in range(7)])
