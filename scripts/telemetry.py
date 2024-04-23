@@ -1,24 +1,33 @@
 #!/usr/bin/env python3
 import serial
 from SystemState import SystemState
+from FCUSensorState import FCUSensorState
+from FlightMode import FlightMode
 from NavagationData import NavagationData
+from PressureSensorData import PressureSensorData
+from TVCData import TVCData
 import time
 import random
 
-def simulate_rocket_data(packet_count):
+def rocket_data(packet_count):
     header = "HDR"
     mission_time = random.randint(0, 4294967295)
     system_state = SystemState()
     systemStateData = [system_state.FirstStageIgnition] # 自己改格式
-    flight_mode = format(random.randint(0, 15), '04b')
-    sensor_data = format(random.randint(0, 255), '08b')
-    navigation_data = ",".join([str(random.random()) for _ in range(7)])
-    tvc_data = ",".join([str(random.randint(-32768, 32767)) for _ in range(3)])
-    pressure_sensor = ",".join([str(random.randint(0, 65535)) for _ in range(9)])
+    flight_mode = FlightMode()
+    flight_modeData = [flight_mode.Hold]
+    FCU_sensor = FCUSensorState()
+    FCU_sensor_data = []
+    navigation = NavagationData()
+    navigation_data = []
+    tvc = TVCData()
+    tvc_data = []
+    pressure_sensor = PressureSensorData()
+    pressure_sensor_data = []
     checksum = random.randint(0, 4294967295)
     tailer = "TLR"
 
-    data = f"{header},{packet_count},{mission_time},{system_state},{flight_mode},{sensor_data},{navigation_data},{tvc_data},{pressure_sensor},{checksum},{tailer}"
+    data = f"{header},{packet_count},{mission_time},{},{},{},{},{},{},{checksum},{tailer}"
     return data
 
 
@@ -40,7 +49,7 @@ if __name__ == '__main__':
 
     try:
         while True:
-            data = simulate_rocket_data(packet_count)
+            data = rocket_data(packet_count)
             data = data + "\n"
             sender_ser.write(data.encode())
 
