@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import rospy
 from sensor_msgs.msg import NavSatFix
 from geometry_msgs.msg import PoseStamped
@@ -14,8 +13,6 @@ class NavagationData:
     def __local_positionCallback(self,data):
         self.rocketQuaternion = data.pose.orientation
         print('orientation',self.rocketQuaternion)
-
-
 
     def __init__(self):
         rospy.Subscriber('mavros/global_position/global',NavSatFix,self.__global_positionCallback)
