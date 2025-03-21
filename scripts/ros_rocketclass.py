@@ -1,29 +1,35 @@
 #!/usr/bin/env python3
 import rospy
-from std_msgs.msg import UInt32,Bool,UInt16
+from std_msgs.msg import UInt32,Bool,UInt16,Float32
 from sensor_msgs.msg import NavSatFix
 from geometry_msgs.msg import PoseStamped
 
 
 class FCUSensor:
     def __init__(self):
-        rospy.Subscriber('FirstBallValve',Bool,self.__FirstBallValveCallback)
-        rospy.Subscriber('SecondBallValve',Bool,self.__SecondBallValveCallback)
+        rospy.Subscriber('FirstStageMainValveState',Float32,self.__FirstStageMainValveStateCallback)
+        rospy.Subscriber('SecoondStageMainValveState',Float32,self.__SecoondStageMainValveStateCallback)
         rospy.Subscriber('SeperationSwitch',Bool,self.__SecondSeparationSwitch1Callback)
         rospy.Subscriber('SolenoidValve1',Bool,self.__SolenoidValve1Callback) #TODO change to two call back function
         rospy.Subscriber('SolenoidValve2',Bool,self.__SolenoidValve2Callback)
         rospy.Subscriber('SolenoidValve3',Bool,self.__SolenoidValve3Callback)
         rospy.Subscriber('SolenoidValve4',Bool,self.__SolenoidValve4Callback)
-        self.data={'FirstBallValve':False,'SecondBallValve':False,'SecondSeperationSwitch1':False,'SecondSeperationSwitch2':False,'SolenoidValve1':False,'SolenoidValve2':False,'SolenoidValve3':False,'SolenoidValve4':False,}
+        self.data={'FirstStageMainValveState':False,'SecoondStageMainValveState':False,'SecondSeperationSwitch1':False,'SecondSeperationSwitch2':False,'SolenoidValve1':False,'SolenoidValve2':False,'SolenoidValve3':False,'SolenoidValve4':False,}
 
     def getData(self):
         return list(self.data.values())
     
-    def __FirstBallValveCallback(self,data):
-        self.data['FirstBallValve']=data.data
+    def __FirstStageMainValveStateCallback(self,data):
+        if data.data > 1.5:
+            self.data['FirstStageMainValveState']=True
+        else:
+            self.data['FirstStageMainValveState']=False
 
-    def __SecondBallValveCallback(self,data):
-        self.data['SecondBallValve']=data.data
+    def __SecoondStageMainValveStateCallback(self,data):
+        if data.data > 1.5:
+            self.data['SecoondStageMainValveState']=True
+        else:
+            self.data['SecoondStageMainValveState']=False
 
     def __SecondSeparationSwitch1Callback(self,data):
         self.data['SeperationSwitch1']=data.data
@@ -43,46 +49,81 @@ class FCUSensor:
     
 class PressureSensorData:
     def __init__(self):
-        rospy.Subscriber('FirstEnginePressure',UInt32,self.__FirstEnginePressureCallback)
-        rospy.Subscriber('FirstTankPressure',UInt32,self.__FirstTankPressureCallback)
-        rospy.Subscriber('SecondEnginePressure',UInt32,self.__SecondEnginePressureCallback)
-        rospy.Subscriber('SecondTankPressure',UInt32,self.__SecondTankPressureCallback)
-        rospy.Subscriber('RCSPressure1',UInt32,self.__RCSPressure1Callback)
-        rospy.Subscriber('RCSPressure2',UInt32,self.__RCSPressure2Callback)
-        rospy.Subscriber('RCSPressure3',UInt32,self.__RCSPressure3Callback)
-        rospy.Subscriber('RCSPressure4',UInt32,self.__RCSPressure4Callback)
-        rospy.Subscriber('RCSTankPressure',UInt32,self.__RCSTankPressureCallback)
-        self.data={'FirstEnginePressure':0,'FirstTankPressure':0,'SecondEnginePressure':0,'SecondTankPressure':0,'RCSPressure1':0,'RCSPressure2':0,'RCSPressure3':0,'RCSPressure4':0,'RCSTankPressure':0}
+        print('start pressure sensor transmition') 
+        rospy.Subscriber('FirstEnginePressure',Float32,self.__FirstEnginePressureCallback)
+        rospy.Subscriber('FirstTankPressure',Float32,self.__FirstTankPressureCallback)
+        rospy.Subscriber('SecondEnginePressure',Float32,self.__SecondEnginePressureCallback)
+        rospy.Subscriber('SecondTankPressure',Float32,self.__SecondTankPressureCallback)
+        rospy.Subscriber('RCSPressure1',Float32,self.__RCSPressure1Callback)
+        rospy.Subscriber('RCSPressure2',Float32,self.__RCSPressure2Callback)
+        rospy.Subscriber('RCSPressure3',Float32,self.__RCSPressure3Callback)
+        rospy.Subscriber('RCSPressure4',Float32,self.__RCSPressure4Callback)
+        rospy.Subscriber('RCSTankPressure',Float32,self.__RCSTankPressureCallback)
+        self.FirstEnginePressure = 0.
+        self.FirstTankPressure = 0.
+        self.SecondEnginePressure = 0.
+        self.SecondTankPressure = 0.
+        self.RCSPressure1 = 0.
+        self.RCSPressure2 = 0.
+        self.RCSPressure3 = 0.
+        self.RCSPressure4 = 0.
+        self.RCSTankPressure = 0.
 
-    def getData(self):
-        return list(self.data.values())
+    # def getData(self):
+    #     return [self.FirstEnginePressure,self.FirstTankPressure,self.SecondEnginePressure,self.SecondTankPressure,self.RCSPressure1,self.RCSPressure2,self.RCSPressure3,self.RCSPressure4,self.RCSTankPressure]
 
     def __FirstEnginePressureCallback(self,data):
-        self.data['FirstEnginePressure'] = data.data
-        
+        if data.data > 0:
+            self.FirstEnginePressure = data.data
+        else:
+            self.FirstEnginePressure = 0
     def __FirstTankPressureCallback(self,data):
-        self.data['FirstTankPressure'] = data.data
+        if data.data > 0:
+            self.FirstTankPressure = data.data
+        else:
+            self.FirstTankPressure = 0
 
     def __SecondEnginePressureCallback(self,data):
-        self.data['SecondEnginePressure'] = data.data
+        if data.data > 0:
+            self.SecondEnginePressure = data.data
+        else:
+            self.SecondEnginePressure = 0
 
     def __SecondTankPressureCallback(self,data):
-        self.data['SecondTankPressure'] = data.data
+        if data.data > 0:
+            self.SecondTankPressure = data.data
+        else:
+            self.SecondTankPressure = 0
 
     def __RCSPressure1Callback(self,data):
-        self.data['RCSPressure1'] = data.data
+        if data.data > 0:
+            self.RCSPressure1 = data.data
+        else:
+            self.RCSPressure1 = 0
     
     def __RCSPressure2Callback(self,data):
-        self.data['RCSPressure2'] = data.data
+        if data.data > 0:
+            self.RCSPressure2 = data.data
+        else:
+            self.RCSPressure2 = 0
     
     def __RCSPressure3Callback(self,data):
-        self.data['RCSPressure3'] = data.data
+        if data.data > 0:
+            self.RCSPressure3 = data.data
+        else:
+            self.RCSPressure3 = 0
 
     def __RCSPressure4Callback(self,data):
-        self.data['RCSPressure4'] = data.data
+        if data.data > 0:
+            self.RCSPressure4 = data.data
+        else:
+            self.RCSPressure4 = 0
     
     def __RCSTankPressureCallback(self,data):
-        self.data['RCSTankPressure'] = data.data
+        if data.data > 0:
+            self.RCSTankPressure = data.data
+        else:
+            self.RCSTankPressure = 0
 
     
 
@@ -109,7 +150,7 @@ class NavagationData:
         self.data['position']=[data.latitude,data.longitude,data.altitude]
 
     def __local_positionCallback(self,data):
-        self.data['attitude']=[data.pose.orientation[i] for i in range(4)]
+        self.data['attitude'] = [data.pose.orientation.x, data.pose.orientation.y, data.pose.orientation.z, data.pose.orientation.w]
 
     def getData(self):
         return list(self.data.values())
@@ -120,30 +161,30 @@ class NavagationData:
 
 class SystemState:
     def __init__(self):
-        rospy.Subscriber('FirstStageIgnition',Bool,self.__firstStageIgnitionCallback)
-        rospy.Subscriber('SecondStageIgnition',Bool,self.__secondStageIgnitionCallback)
-        rospy.Subscriber('RocketDetachment',Bool,self.__RocketDetachmentCallback)
-        rospy.Subscriber('SeparationState',Bool,self.__SeparationStateCallback)
-        rospy.Subscriber('OutofRackState',Bool,self.__OutofRackStateCallback)
+        rospy.Subscriber('FirstStageIgnite',Bool,self.__FirstStageIgniteCallback)
+        rospy.Subscriber('leavetheRackState',Bool,self.__leavetheRackStateCallback)
         rospy.Subscriber('FirstStageMainValveOpened', Bool, self.__FirstStageMainValveCallback)
+        rospy.Subscriber('Separate', Bool, self.__SeparateCommandCallback) # command to separate the rocket
+        rospy.Subscriber('SeparationState',Bool,self.__SeparationStateCallback)  # show the state of separation
+        rospy.Subscriber('SecondStageIgnite',Bool,self.__SecondStageIgniteCallback)
         rospy.Subscriber('SecondStageMainValveOpened', Bool, self.__SecondStageMainValveCallback)
-        rospy.Subscriber('Separate', Bool, self.__SeparateCommandCallback)
-        self.data={'FirstStageIgnition':False,'SecondStageIgnition':False,'RocketDetachment':False,'SeparationState':False,'OutofRackState':False,'FirstStageMainValveOpened':False,'SecondStageMainValveOpened':False,'Separate':False,}
 
-    def __firstStageIgnitionCallback(self,data):
-        self.data['FirstStageIgnition'] = data.data
 
-    def __RocketDetachmentCallback(self,data):
-        self.data['RocketDetachment'] = data.data
+        self.data={'FirstStageIgnite':False,'leavetheRackState':False
+                   ,'FirstStageMainValveOpened':False,'Separate':False
+                   ,'SeparationState':False,'SecondStageIgnite':False,'SecondStageMainValveOpened':False,}
 
-    def __secondStageIgnitionCallback(self,data):
-        self.data['SecondStageIgnition'] = data.data
+    def __FirstStageIgniteCallback(self,data):
+        self.data['FirstStageIgnite'] = data.data
+
+    def __leavetheRackStateCallback(self,data):
+        self.data['leavetheRackState'] = data.data
+
+    def __SecondStageIgniteCallback(self,data):
+        self.data['SecondStageIgnite'] = data.data
 
     def __SeparationStateCallback(self,data):
         self.data['SeparationState'] = data.data
-
-    def __OutofRackStateCallback(self,data):
-        self.data['OutofRackState'] = data.data
     
     def __SeparateCommandCallback(self,data):
         self.data['Separate'] = data.data
